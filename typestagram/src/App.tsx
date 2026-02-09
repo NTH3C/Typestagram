@@ -3,26 +3,19 @@ import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import Register from './pages/register';
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<MyApp />} />
-        <Route path="/test" element={<MyTest />}/>
+        <Route path="/register" element={<Register />}/>
         {/* <Route path="/about" element={<About />} />
         <Route path="*" element={<NotFound />} /> */}
       </Routes>
     </BrowserRouter>
   );
-}
-
-function MyTest(){
-  return (
-    <>
-      <h1>TEST</h1>
-    </>
-  )
 }
 
 function MyApp() {
