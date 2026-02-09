@@ -1,89 +1,37 @@
 import { useForm } from "react-hook-form";
 import { TextField, Button, Box } from "@mui/material";
 import { useState } from "react";
+import axios from "axios";
 
-function Register() {
-    const { register, handleSubmit, watch, formState: { errors } } = useForm();
-    const [ error, setError ] = useState("");
+export default function Register() {
+  const { register, handleSubmit, watch, formState: { errors } } = useForm();
+  const [error, setError] = useState("");
 
-    const watch_password = watch("password");
+  const watchPassword = watch("password");
 
-    const onSubmit = (data) => {
-        //faire un call API
-        console.log(data);
-    };
+  const onSubmit = async (data) => {
+    try {
+      const res = await axios.post("http://localhost:8080/auth/register", data);
+      console.log(res.data);
+    } catch {
+      setError("Erreur lors de l'inscription");
+    }
+  };
 
-    return (
-        <Box component="form"       sx={{ maxWidth: 400, mx: "auto", mt: 4 }} onSubmit={handleSubmit(onSubmit)}>
+  return (
+    <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ maxWidth: 400, mx: "auto" }}>
+      {error && <p style={{ color: "red" }}>{error}</p>}
 
-        <p>{error}</p>
+      <TextField label="Email" fullWidth margin="normal" error={!!errors.email} helperText={errors.email?.message}
+        {...register("email", { required: "Email requis", pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/, message: "Email invalide" }})} />
 
-        <TextField
-            label="Username"
-            fullWidth
-            margin="normal"
-            error={!!errors.username}
-            helperText={errors.username?.message}
-            {...register("username", { 
-                required: true,
-                validate: (value) =>
-                        value === "" || "Vous devez reseigner un utilisateur",
-                }
-            )}
-        />    
-            
-        <TextField
-            label="Email"
-            fullWidth
-            error={!!errors.email}
-            helperText={errors.email?.message}
-            margin="normal"
-            {...register("email", {
-            required: "Email requis",
-            pattern: {
-                value: /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/,
-                message: "Email invalide",
-            },
-            })}
-        />   
+      <TextField label="Mot de passe" type="password" fullWidth margin="normal" error={!!errors.password} helperText={errors.password?.message}
+        {...register("password", { required: "Mot de passe requis", pattern: { value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/, message: "Mot de passe trop faible" } })} />
 
-        <TextField
-        label="Mot de passe"
-        fullWidth
-        type="password"
-        margin="normal"
-        error={!!errors.password}
-        helperText={errors.password?.message}
-        {...register("password", {
-            required: "Mot de passe requis",
-            pattern: {
-            value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/,
-            message:
-                "8 caractères min, 1 majuscule, 1 minuscule, 1 chiffre, 1 spécial",
-            },
-        })}
-        />
+      <TextField label="Confirmer mot de passe" type="password" fullWidth margin="normal" error={!!errors.confirmPassword} helperText={errors.confirmPassword?.message}
+        {...register("confirmPassword", { required: "Confirmation requise", validate: v => v === watchPassword || "Les mots de passe ne correspondent pas" })} />
 
-        <TextField
-            label="Confirmer Mot de passe"
-            type="password"
-            fullWidth
-            margin="normal"
-            error={!!errors.vpassword}
-            helperText={errors.vpassword?.message}
-            {...register("vpassword",
-                 { required: true, 
-                    validate: (value) =>
-                        value === watch_password || "Les mots de passe ne correspondent pas",
-                }
-                )}
-        />
-
-        <Button type="submit" variant="contained" fullWidth>
-            Envoyer
-        </Button>
-        </Box>
-    );
+      <Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }}>S'inscrire</Button>
+    </Box>
+  );
 }
-
-export default Register
