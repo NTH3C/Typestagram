@@ -2,8 +2,31 @@ import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<MyApp />} />
+        <Route path="/test" element={<MyTest />}/>
+        {/* <Route path="/about" element={<About />} />
+        <Route path="*" element={<NotFound />} /> */}
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+function MyTest(){
+  return (
+    <>
+      <h1>TEST</h1>
+    </>
+  )
+}
+
+function MyApp() {
+  
   const [count, setCount] = useState(0)
 
   return (
