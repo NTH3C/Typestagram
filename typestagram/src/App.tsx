@@ -3,16 +3,35 @@ import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
+
+import ProfilePage from './pages/myProfilePage';
+
 import Register from './pages/register';
 import Login from './pages/login';
+
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<MyApp />} />
+
+        <Route path="/myprofile" element={<ProfilePage 
+          name="ahhhh"
+          bio="rabeee"
+          avatarUrl="https://i.pravatar.cc/150?img=3"
+          />}/>
+        <Route path="/profile/Momo" element={<ProfilePage 
+          name="Momo"
+          bio="Arabe"
+          avatarUrl="https://i.pravatar.cc/150?img=3"
+          />}/>
+
+
+
         <Route path="/register" element={<Register />}/>
         <Route path="/login" element={<Login />}/>
+
         {/* <Route path="/about" element={<About />} />
         <Route path="*" element={<NotFound />} /> */}
       </Routes>
