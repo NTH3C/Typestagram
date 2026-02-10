@@ -1,17 +1,17 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
-import * as likeService from './like.service';
+import { LikeService, Like } from './like.service';
 
 @Controller('likes')
 export class LikeController {
-  constructor(private readonly likeService: likeService.LikeService) {}
+  constructor(private readonly likeService: LikeService) {}
 
   @Get()
-  getFeed(): likeService.Like[] {
+  getFeed(): Like[] {
     return this.likeService.getFeed();
   }
 
-  @Post()
-  likePost(@Body() post: Omit<likeService.Like, 'id'>): likeService.Like {
-    return this.likeService.likePost(post);
+  @Post('toggle')
+  toggleLike(@Body() post: Omit<Like, 'id'>) {
+    return this.likeService.toggleLike(post);
   }
 }

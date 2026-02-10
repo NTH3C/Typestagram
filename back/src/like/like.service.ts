@@ -16,14 +16,24 @@ export class LikeService {
     return this.likes;
   }
 
-  likePost(post: Omit<Like, 'id'>): Like {
+  toggleLike(post: Omit<Like, 'id'>): { liked: boolean; like?: Like } {
+    // check if this user already liked this post
+    const existingIndex = this.likes.findIndex(
+      (l) => l.uid === post.uid && l.authorEmail === post.authorEmail
+    );
+
+    if (existingIndex !== -1) {
+      // remove like → dislike
+      this.likes.splice(existingIndex, 1);
+      return { liked: false };
+    }
+
+    // else → add like
     const like: Like = {
       id: Date.now(),
       ...post,
     };
-
     this.likes.push(like);
-
-    return like;
+    return { liked: true, like };
   }
 }

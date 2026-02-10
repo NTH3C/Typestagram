@@ -22,15 +22,10 @@ function App() {
         <Route path="/myprofile" element={<ProfilePage />}/>
         <Route path="/feed" element={<FeedPage />} />
 
-
         <Route path="/register" element={<Register />}/>
         <Route path="/login" element={<Login />}/>
         <Route path="/logout" element={<Logout />}/>
         <Route path="/profile/:id" element={<Profile />}/>
-
-          
-        {/* <Route path="/about" element={<About />} />
-        <Route path="*" element={<NotFound />} /> */}
       </Routes>
     </BrowserRouter>
   );
@@ -44,9 +39,8 @@ function Logout() {
     if (storedUser) {
       localStorage.clear()
     }
-  
     navigate("/")    
-  })
+  }, [storedUser, navigate])
 
   return(
     <></>
@@ -54,27 +48,14 @@ function Logout() {
 }
 
 
-async function like(post: Post) {
-  try {
-    const response = await fetch("http://localhost:8080/likes", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(post),
-    });
-
-    if (!response.ok) {
-      throw new Error("Error while liking post");
-    }
-
-    const data = await response.json();
-    console.log("Liked", data);
-
-    return data;
-  } catch (error) {
-    console.error("Like failed", error);
-  }
+async function toggleLike(post: Post) {
+  const res = await fetch("http://localhost:8080/likes/toggle", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(post),
+  });
+  const data = await res.json();
+  return data;
 }
 
 
@@ -86,9 +67,11 @@ type Post = {
   uid: string;
 };
 
+
 function MyApp() {
   const [visibleCount, setVisibleCount] = useState(2);
   const [posts, setPosts] = useState<Post[]>([]);
+  const [likedPosts, setLikedPosts] = useState<{ [key: string]: boolean }>({});
 
   const loaderRef = useRef<HTMLDivElement | null>(null);
 
@@ -101,11 +84,9 @@ function MyApp() {
         } catch (err) {
             console.error(err);
         }
-
     }
 
     fetchPost();
-
 
     const observer = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting) {
@@ -121,49 +102,62 @@ function MyApp() {
   
   const storedUser = localStorage.getItem("user");
 
+  const handleLike = async (post: Post) => {
+    try {
+      const data = await toggleLike(post);
+      setLikedPosts((prev) => ({
+        ...prev,
+        [post.uid]: data.liked,
+      }));
+    } catch (err) {
+      console.error("Erreur like:", err);
+    }
+  };
+
   return (
     <>
       <Box>
-      <h1>Accueil</h1> 
-      {
-        
-        storedUser ? (
-          <div>
-            <Button variant="contained" sx={{background: "red"}} href="/logout">
-              se déconnecter
+        <h1>Accueil</h1> 
+        {
+          storedUser ? (
+            <div>
+              <Button variant="contained" sx={{background: "red"}} href="/logout">
+                se déconnecter
+              </Button>
+              <ul>
+                <li>
+                  {posts.slice(0,visibleCount).map((post, index) => (
+                    <div key={index}>
+                      {/* <img src={post.image} alt="" /> */}
+                      <a href={`/profile/${post.uid}`} >{post.authorEmail}</a>
+                      <p>{post.content}</p>
+                      <Button
+                        onClick={() => handleLike(post)}
+                        sx={{
+                          color: likedPosts[post.uid] ? "red" : "black",
+                          textTransform: "none",
+                        }}
+                      >
+                        {likedPosts[post.uid] ? "Liked" : "Like"}
+                      </Button>
+                    </div>
+                  ))}
+                </li>
+              </ul>
+              <div ref={loaderRef} style={{ height: 20 }} />
+            </div>
+          ) : (
+            <Button variant="contained" href="/login">
+              Login
             </Button>
-            <ul>
-              <li>
-                {posts.slice(0,visibleCount).map((post, index) => (
-                  <div key={index}>
-                    {/* <img src={post.image} alt="" /> */}
-                    <a href={`/profile/${post.uid}`} >{post.authorEmail}</a>
-                    <p>{post.content}</p>
-                    <IconButton onClick={() => like(post)}>
-                      favorite
-                    </IconButton>
-                  </div>
-                ))}
-              </li>
-            </ul>
-          <div ref={loaderRef} style={{ height: 20 }} />
-          </div>
-        ) : (
-          <Button variant="contained" href="/login">
-            Login
-          </Button>
-        )
-        
-      }
-      <Button variant="outlined" href="/feed">
-        Feed
-      </Button>
-
+          )
+        }
+        <Button variant="outlined" href="/feed">
+          Feed
+        </Button>
       </Box>
-        
-
     </>
   )
 }
 
-export default App
+export default App;
