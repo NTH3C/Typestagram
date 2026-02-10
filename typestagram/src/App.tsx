@@ -6,7 +6,7 @@ import FeedPage from './pages/feedPage';
 
 import Register from './pages/register';
 import Login from './pages/login';
-import { Box, Typography, Drawer, Stack, TextField, Alert } from '@mui/material';
+import { Box, Button as ButtonIcon, IconButton, Typography } from '@mui/material';
 import Button from '@mui/material/Button';
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import Profile from './pages/Profile';
@@ -24,7 +24,7 @@ type Post = {
   content: string;
   authorEmail: string;
   createdAt: string;
-  uid?: string;
+  uid: string;
   comments?: Comment[];
 };
 
@@ -97,74 +97,18 @@ function App() {
 
   return (
     <OpenPostContext.Provider value={openPost}>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<MyApp />} />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<MyApp />} />
 
-          <Route path="/myprofile" element={<ProfilePage />}/>
-          <Route path="/feed" element={<FeedPage />} />
+            <Route path="/myprofile" element={<ProfilePage />}/>
+            <Route path="/feed" element={<FeedPage />} />
 
           <Route path="/register" element={<Register />}/>
           <Route path="/login" element={<Login />}/>
           <Route path="/logout" element={<Logout />}/>
           <Route path="/profile/:id" element={<Profile />}/>
-
-          {/* <Route path="/about" element={<About />} />
-        <Route path="*" element={<NotFound />} /> */}
         </Routes>
-
-        <Drawer
-          anchor="right"
-          open={Boolean(selectedPost)}
-          onClose={() => setSelectedPost(null)}
-          PaperProps={{ sx: { width: { xs: '100%', sm: 420 }, p: 2 } }}
-        >
-          {selectedPost && (
-            <Box>
-              {error && <Alert severity="error">{error}</Alert>}
-              <Typography variant="h6">{selectedPost.authorEmail}</Typography>
-              <Typography variant="caption" color="text.secondary">
-                {new Date(selectedPost.createdAt).toLocaleString()}
-              </Typography>
-              <Typography sx={{ mt: 2, whiteSpace: "pre-wrap" }}>
-                {selectedPost.content}
-              </Typography>
-
-              <Box mt={3}>
-                <Typography variant="subtitle1">Commentaires</Typography>
-                <Stack spacing={1} mt={1}>
-                  {(selectedPost.comments ?? []).map((c) => (
-                    <Box key={c.id} sx={{ borderTop: '1px solid #eee', pt:1 }}>
-                      <Typography variant="caption" color="text.secondary">
-                        {c.authorEmail} · {new Date(c.createdAt).toLocaleString()}
-                      </Typography>
-                      <Typography>{c.text}</Typography>
-                    </Box>
-                  ))}
-                </Stack>
-
-                <Box mt={2}>
-                  <TextField
-                    label="Ajouter un commentaire"
-                    multiline
-                    minRows={2}
-                    fullWidth
-                    value={commentText}
-                    onChange={(e) => setCommentText(e.target.value)}
-                  />
-                  <Button
-                    variant="contained"
-                    sx={{ mt: 1 }}
-                    onClick={submitComment}
-                    disabled={commentLoading || commentText.trim().length === 0}
-                  >
-                    {commentLoading ? "Envoi..." : "Commenter"}
-                  </Button>
-                </Box>
-              </Box>
-            </Box>
-          )}
-        </Drawer>
       </BrowserRouter>
     </OpenPostContext.Provider>
   );
@@ -178,16 +122,27 @@ function Logout() {
     if (storedUser) {
       localStorage.clear()
     }
-
-    navigate("/")
-  })
+    navigate("/")    
+  }, [storedUser, navigate])
 
   return(<></>)
+}
+
+
+async function toggleLike(post: Post) {
+  const res = await fetch("http://localhost:8080/likes/toggle", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(post),
+  });
+  const data = await res.json();
+  return data;
 }
 
 function MyApp() {
   const [visibleCount, setVisibleCount] = useState(2);
   const [posts, setPosts] = useState<Post[]>([]);
+  const [likedPosts, setLikedPosts] = useState<{ [key: string]: boolean }>({});
 
   const loaderRef = useRef<HTMLDivElement | null>(null);
   const openPost = useContext(OpenPostContext);
@@ -211,11 +166,9 @@ function MyApp() {
         } catch (err) {
             console.error(err);
         }
-
     }
 
     fetchPost();
-
 
     const observer = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting) {
@@ -230,6 +183,18 @@ function MyApp() {
 
 
   const storedUser = localStorage.getItem("user");
+
+  const handleLike = async (post: Post) => {
+    try {
+      const data = await toggleLike(post);
+      setLikedPosts((prev) => ({
+        ...prev,
+        [post.uid]: data.liked,
+      }));
+    } catch (err) {
+      console.error("Erreur like:", err);
+    }
+  };
 
   return (
     <>
@@ -273,4 +238,4 @@ function MyApp() {
   )
 }
 
-export default App
+export default App;
