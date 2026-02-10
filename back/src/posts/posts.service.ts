@@ -12,6 +12,7 @@ export class PostsService {
   private posts: PostModel[] = [];
 
   getFeed(): PostModel[] {
+    console.log(this.posts);
     return this.posts;
   }
 
@@ -22,6 +23,8 @@ export class PostsService {
       authorEmail: input.authorEmail,
       createdAt: new Date().toISOString(),
     };
+
+    this.posts.push(post)
 
     return post;
   }
