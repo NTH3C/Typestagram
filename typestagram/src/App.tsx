@@ -6,7 +6,7 @@ import FeedPage from './pages/feedPage';
 
 import Register from './pages/register';
 import Login from './pages/login';
-import { Box, Button as ButtonIcon, Typography } from '@mui/material';
+import { Box, Button as ButtonIcon, IconButton, Typography } from '@mui/material';
 import Button from '@mui/material/Button';
 import { useEffect, useRef, useState } from 'react';
 import Profile from './pages/Profile';
@@ -52,6 +52,31 @@ function Logout() {
     <></>
   )
 }
+
+
+async function like(post: Post) {
+  try {
+    const response = await fetch("http://localhost:8080/likes", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(post),
+    });
+
+    if (!response.ok) {
+      throw new Error("Error while liking post");
+    }
+
+    const data = await response.json();
+    console.log("Liked", data);
+
+    return data;
+  } catch (error) {
+    console.error("Like failed", error);
+  }
+}
+
 
 type Post = {
   image: string;
@@ -114,6 +139,9 @@ function MyApp() {
                     {/* <img src={post.image} alt="" /> */}
                     <a href={`/profile/${post.uid}`} >{post.authorEmail}</a>
                     <p>{post.content}</p>
+                    <IconButton onClick={() => like(post)}>
+                      favorite
+                    </IconButton>
                   </div>
                 ))}
               </li>
