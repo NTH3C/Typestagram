@@ -54,10 +54,10 @@ function Logout() {
 }
 
 type Post = {
+  id: string
   image: string;
   content: string;
   authorEmail: string;
-  user_id: string;
   uid: string;
 };
 
@@ -66,6 +66,16 @@ function MyApp() {
   const [posts, setPosts] = useState<Post[]>([]);
 
   const loaderRef = useRef<HTMLDivElement | null>(null);
+
+  const deletePost = async (id: string) => {
+    try {
+      const res = await axios.delete(`http://localhost:8080/posts/${id}`);
+      setPosts(post => post.filter(curpost => curpost.id !== id))
+    } catch (err) {
+      console.error(err);
+    }
+
+  }
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -114,6 +124,7 @@ function MyApp() {
                     {/* <img src={post.image} alt="" /> */}
                     <a href={`/profile/${post.uid}`} >{post.authorEmail}</a>
                     <p>{post.content}</p>
+                    <Button variant="outlined" onClick={() => deletePost(post.id)}>supprimer</Button>
                   </div>
                 ))}
               </li>

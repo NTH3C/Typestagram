@@ -6,6 +6,8 @@ import {
   Body,
   Req,
   UnauthorizedException,
+  Delete,
+  Param,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PostsService } from './posts.service';
@@ -45,5 +47,10 @@ export class PostsController {
     const uid = payload?.id ?? "0"
 
     return this.postsService.createPost({ content, authorEmail, uid });
+  }
+
+  @Delete(":id")
+  async delete(@Param("id") id: string) {
+    this.postsService.deletePost({id: parseInt(id, 10)})
   }
 }

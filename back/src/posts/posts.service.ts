@@ -30,4 +30,13 @@ export class PostsService {
 
     return post;
   }
+
+  deletePost(input: {id : number}) {
+    const post: PostModel = this.posts.find(fn => fn.id = input.id) as PostModel
+
+    let index = this.posts.indexOf(post)
+    this.posts.splice(index, 1);
+
+    console.log(this.posts)
+  }
 }
