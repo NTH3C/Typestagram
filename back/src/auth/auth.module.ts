@@ -6,11 +6,13 @@ import { JwtModule } from '@nestjs/jwt';
 @Module({
   imports: [
     JwtModule.register({
-      secret: 'SECRET_KEY', // 🔑 en prod -> .env
+      secret: 'SECRET_KEY',
       signOptions: { expiresIn: '1h' },
     }),
   ],
   controllers: [AuthController],
   providers: [AuthService],
+  exports: [AuthService], 
+
 })
 export class AuthModule {}
