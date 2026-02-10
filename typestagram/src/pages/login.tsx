@@ -2,10 +2,12 @@ import { useForm } from "react-hook-form";
 import { TextField, Button, Box } from "@mui/material";
 import { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
   const { register, handleSubmit, formState: { errors } } = useForm();
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const onSubmit = async (data) => {
     try {
@@ -18,6 +20,7 @@ export default function Login() {
       console.log("Connecté :", res.data.user);
       localStorage.setItem("user", JSON.stringify(res.data.user));
       console.log(res.data.user)
+      navigate("/myprofile");
     } catch (err) {
       setError("Erreur connexion");
     }
@@ -50,6 +53,8 @@ export default function Login() {
       />
 
       <Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }}>Se connecter</Button>
+
+      <span>Vous n'avez pas de compte ? <a href="/register">Inscivez vous</a></span>
     </Box>
   );
 }

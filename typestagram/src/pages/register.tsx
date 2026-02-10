@@ -35,6 +35,9 @@ export default function Register() {
         {...register("confirmPassword", { required: "Confirmation requise", validate: v => v === watchPassword || "Les mots de passe ne correspondent pas" })} />
 
       <Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }}>S'inscrire</Button>
+
+      <span>Vous avez déjà un compte ? <a href="/login">Connectez vous</a></span>
+
     </Box>
   );
 }
