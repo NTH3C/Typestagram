@@ -56,6 +56,11 @@ export class PostsController {
     return this.postsService.createPost({ content, authorEmail, uid });
   }
 
+  @Delete(":id")
+  async delete(@Param("id") id: string) {
+    this.postsService.deletePost({id: parseInt(id, 10)})
+  }
+
   @Post(':id/comments')
   async createComment(@Param('id') id: string, @Body() body: { text?: string }, @Req() req: any) {
     const text = (body.text ?? '').trim();

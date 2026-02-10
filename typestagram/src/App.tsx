@@ -41,12 +41,10 @@ function App() {
   const openPost = async (postId: number) => {
     setError(null);
     try {
-      const res = await fetch(`${API_URL}/posts/${postId}`);
-      if (!res.ok) throw new Error("Erreur chargement post");
-      const data = (await res.json()) as Post;
-      setSelectedPost(data);
+      const res = await axios.get<Post>(`${API_URL}/posts/${postId}`);
+      setSelectedPost(res.data);
     } catch (e: any) {
-      setError(e?.message ?? "Erreur API");
+      setError(e?.response?.data?.message ?? e?.message ?? "Erreur API");
     }
   };
 
@@ -71,17 +69,19 @@ function App() {
       setSelectedPost((p) => (p ? { ...p, comments: [...(p.comments ?? []), optimistic] } : p));
       setCommentText("");
 
-      const res = await fetch(`${API_URL}/posts/${selectedPost.id}/comments`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ text }),
-      });
+      const res = await axios.post(
+        `${API_URL}/posts/${selectedPost.id}/comments`,
+        { text }, // corps JSON
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-      if (!res.ok) {
-        const body = await res.json().catch(() => null);
+      if (!res.data) {
+        const body = await res.data;
         const message = body?.message ?? "Erreur API";
         throw new Error(message);
       }
