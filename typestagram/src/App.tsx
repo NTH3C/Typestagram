@@ -2,6 +2,7 @@ import './App.css'
 import { BrowserRouter, Route, Routes, useNavigate } from 'react-router-dom';
 
 import ProfilePage from './pages/myProfilePage';
+import FeedPage from './pages/feedPage';
 
 import Register from './pages/register';
 import Login from './pages/login';
@@ -18,12 +19,15 @@ function App() {
         <Route path="/" element={<MyApp />} />
 
         <Route path="/myprofile" element={<ProfilePage />}/>
+        <Route path="/feed" element={<FeedPage />} />
+
 
         <Route path="/register" element={<Register />}/>
         <Route path="/login" element={<Login />}/>
         <Route path="/logout" element={<Logout />}/>
         <Route path="/profile/:id" element={<Profile />}/>
 
+          
         {/* <Route path="/about" element={<About />} />
         <Route path="*" element={<NotFound />} /> */}
       </Routes>
@@ -209,7 +213,12 @@ function MyApp() {
             Login
           </Button>
         )
+        
       }
+      <Button variant="outlined" href="/feed">
+        Feed
+      </Button>
+
       </Box>
         
 
