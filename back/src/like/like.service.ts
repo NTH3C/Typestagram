@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 
 export type Like = {
-  id: number;
+  likeId: number;      // unique like identifier
+  id: number;          // post id
   content: string;
-  authorEmail: string;
+  authorEmail: string; // user email
   createdAt: string;
-  uid: string;
 };
 
 @Injectable()
@@ -16,23 +16,27 @@ export class LikeService {
     return this.likes;
   }
 
-  toggleLike(post: Omit<Like, 'id'>): { liked: boolean; like?: Like } {
-    // check if this user already liked this post
+  toggleLike(
+    post: Omit<Like, 'likeId' | 'createdAt'>
+  ): { liked: boolean; like?: Like } {
+    // check if this user already liked THIS post
     const existingIndex = this.likes.findIndex(
-      (l) => l.uid === post.uid && l.authorEmail === post.authorEmail
+      (l) => l.id === post.id && l.authorEmail === post.authorEmail
     );
 
     if (existingIndex !== -1) {
-      // remove like → dislike
+      // unlike
       this.likes.splice(existingIndex, 1);
       return { liked: false };
     }
 
-    // else → add like
+    // like
     const like: Like = {
-      id: Date.now(),
+      likeId: Date.now(),
+      createdAt: new Date().toISOString(),
       ...post,
     };
+
     this.likes.push(like);
     return { liked: true, like };
   }

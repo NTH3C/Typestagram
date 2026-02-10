@@ -11,7 +11,7 @@ export class LikeController {
   }
 
   @Post('toggle')
-  toggleLike(@Body() post: Omit<Like, 'id'>) {
+  toggleLike(@Body() post: Omit<Like, "likeId" | "createdAt">) {
     return this.likeService.toggleLike(post);
   }
 }
