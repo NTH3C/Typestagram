@@ -40,9 +40,10 @@ export class PostsController {
     } catch {
       throw new UnauthorizedException('Invalid token');
     }
-
+    
     const authorEmail = payload?.email ?? 'unknown';
+    const uid = payload?.id ?? "0"
 
-    return this.postsService.createPost({ content, authorEmail });
+    return this.postsService.createPost({ content, authorEmail, uid });
   }
 }
