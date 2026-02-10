@@ -6,7 +6,7 @@ import FeedPage from './pages/feedPage';
 
 import Register from './pages/register';
 import Login from './pages/login';
-import { Box, Button as ButtonIcon, IconButton, Typography } from '@mui/material';
+import { Alert, Box, Button as ButtonIcon, Drawer, IconButton, Stack, TextField, Typography } from '@mui/material';
 import Button from '@mui/material/Button';
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import Profile from './pages/Profile';
@@ -109,6 +109,59 @@ function App() {
           <Route path="/logout" element={<Logout />}/>
           <Route path="/profile/:id" element={<Profile />}/>
         </Routes>
+
+         <Drawer
+          anchor="right"
+          open={Boolean(selectedPost)}
+          onClose={() => setSelectedPost(null)}
+          PaperProps={{ sx: { width: { xs: '100%', sm: 420 }, p: 2 } }}
+        >
+          {selectedPost && (
+            <Box>
+              {error && <Alert severity="error">{error}</Alert>}
+              <Typography variant="h6">{selectedPost.authorEmail}</Typography>
+              <Typography variant="caption" color="text.secondary">
+                {new Date(selectedPost.createdAt).toLocaleString()}
+              </Typography>
+              <Typography sx={{ mt: 2, whiteSpace: "pre-wrap" }}>
+                {selectedPost.content}
+              </Typography>
+
+              <Box mt={3}>
+                <Typography variant="subtitle1">Commentaires</Typography>
+                <Stack spacing={1} mt={1}>
+                  {(selectedPost.comments ?? []).map((c) => (
+                    <Box key={c.id} sx={{ borderTop: '1px solid #eee', pt:1 }}>
+                      <Typography variant="caption" color="text.secondary">
+                        {c.authorEmail} · {new Date(c.createdAt).toLocaleString()}
+                      </Typography>
+                      <Typography>{c.text}</Typography>
+                    </Box>
+                  ))}
+                </Stack>
+
+                <Box mt={2}>
+                  <TextField
+                    label="Ajouter un commentaire"
+                    multiline
+                    minRows={2}
+                    fullWidth
+                    value={commentText}
+                    onChange={(e) => setCommentText(e.target.value)}
+                  />
+                  <Button
+                    variant="contained"
+                    sx={{ mt: 1 }}
+                    onClick={submitComment}
+                    disabled={commentLoading || commentText.trim().length === 0}
+                  >
+                    {commentLoading ? "Envoi..." : "Commenter"}
+                  </Button>
+                </Box>
+              </Box>
+            </Box>
+          )}
+        </Drawer>
       </BrowserRouter>
     </OpenPostContext.Provider>
   );
@@ -213,6 +266,7 @@ function MyApp() {
                   <div key={index} style={{ cursor: 'pointer', border: '1px solid #ddd', padding: 8, marginBottom: 8 }} onClick={() => openPost?.(Number(post.id))}>
                     <a href={`/profile/${post.uid}`} onClick={(e) => e.stopPropagation()}>{post.authorEmail}</a>
                     <p>{post.content}</p>
+                    <Button variant="outlined" onClick={(e) => { e.stopPropagation(); toggleLike(post) }}>Like</Button>
                     <Button variant="outlined" onClick={(e) => { e.stopPropagation(); deletePost(String(post.id)); }}>supprimer</Button>
                   </div>
                 ))}
