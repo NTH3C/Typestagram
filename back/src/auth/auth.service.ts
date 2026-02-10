@@ -14,6 +14,14 @@ export interface User {
 export class AuthService {
   private users:User[] = [];
 
+  getUserById(id: number): Omit<User, 'password'> | null {
+    const user = this.users.find(u => u.id === id);
+    if (!user) return null;
+
+    const { password, ...safeUser } = user;
+    return safeUser;
+  }
+
   constructor(private jwtService: JwtService) {}
 
   async register(username:string, email: string, password: string) {

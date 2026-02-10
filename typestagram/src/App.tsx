@@ -7,8 +7,8 @@ import Register from './pages/register';
 import Login from './pages/login';
 import { Box, Button as ButtonIcon, Typography } from '@mui/material';
 import Button from '@mui/material/Button';
-import type { User } from './types/Profile';
 import { useEffect } from 'react';
+import Profile from './pages/Profile';
 
 
 function App() {
@@ -17,22 +17,13 @@ function App() {
       <Routes>
         <Route path="/" element={<MyApp />} />
 
-        <Route path="/myprofile" element={<ProfilePage 
-          name="ahhhh"
-          bio="rabeee"
-          avatarUrl="https://i.pravatar.cc/150?img=3"
-          />}/>
-        <Route path="/profile/Momo" element={<ProfilePage 
-          name="Momo"
-          bio="Arabe"
-          avatarUrl="https://i.pravatar.cc/150?img=3"
-          />}/>
-
+        <Route path="/myprofile" element={<ProfilePage />}/>
 
 
         <Route path="/register" element={<Register />}/>
         <Route path="/login" element={<Login />}/>
         <Route path="/logout" element={<Logout />}/>
+        <Route path="/profile/:id" element={<Profile />}/>
 
         {/* <Route path="/about" element={<About />} />
         <Route path="*" element={<NotFound />} /> */}
@@ -52,6 +43,10 @@ function Logout() {
   
     navigate("/")    
   })
+
+  return(
+    <></>
+  )
 }
 
 function MyApp() {
