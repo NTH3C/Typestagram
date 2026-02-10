@@ -2,6 +2,7 @@ import './App.css'
 import { BrowserRouter, Route, Routes, useNavigate } from 'react-router-dom';
 
 import ProfilePage from './pages/myProfilePage';
+import FeedPage from './pages/feedPage';
 
 import Register from './pages/register';
 import Login from './pages/login';
@@ -27,13 +28,14 @@ function App() {
           bio="Arabe"
           avatarUrl="https://i.pravatar.cc/150?img=3"
           />}/>
-
+        <Route path="/feed" element={<FeedPage />} />
 
 
         <Route path="/register" element={<Register />}/>
         <Route path="/login" element={<Login />}/>
         <Route path="/logout" element={<Logout />}/>
 
+          
         {/* <Route path="/about" element={<About />} />
         <Route path="*" element={<NotFound />} /> */}
       </Routes>
@@ -71,7 +73,12 @@ function MyApp() {
             Login
           </Button>
         )
+        
       }
+      <Button variant="outlined" href="/feed">
+        Feed
+      </Button>
+
       </Box>
       <h1>Accueil</h1>   
 
