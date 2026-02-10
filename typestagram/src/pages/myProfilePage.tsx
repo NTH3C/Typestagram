@@ -31,7 +31,7 @@ const MyProfilePage = () => {
         </Typography>
 
         <Typography variant="body1" color="text.secondary">
-          {user.id}
+          {user.username}
         </Typography>
 
         <Stack direction="row" spacing={2} sx={{ marginTop: 2 }} />

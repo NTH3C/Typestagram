@@ -22,6 +22,9 @@ export default function Register() {
     <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ maxWidth: 400, mx: "auto" }}>
       {error && <p style={{ color: "red" }}>{error}</p>}
 
+      <TextField label="Username" fullWidth margin="normal"
+        {...register("username", { required: "username"})} />
+
       <TextField label="Email" fullWidth margin="normal" error={!!errors.email} helperText={errors.email?.message}
         {...register("email", { required: "Email requis", pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/, message: "Email invalide" }})} />
 

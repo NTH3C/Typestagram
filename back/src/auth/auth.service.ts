@@ -4,6 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 
 // src/auth/auth.types.ts
 export interface User {
+  username: string;
   id: number;
   email: string;
   password: string;
@@ -15,9 +16,9 @@ export class AuthService {
 
   constructor(private jwtService: JwtService) {}
 
-  async register(email: string, password: string) {
+  async register(username:string, email: string, password: string) {
     const hashed = await bcrypt.hash(password, 10);
-    const user = { id: Date.now(), email, password: hashed };
+    const user = { id: Date.now(), username, email, password: hashed };
     this.users.push(user);
     return { message: 'Compte créé', user: { id: user.id, email: user.email } };
   }
@@ -34,10 +35,10 @@ export class AuthService {
     const user = await this.validateUser(email, password);
     if (!user) return null;
 
-    const payload = { email: user.email, sub: user.id };
+    const payload = { username: user.username, email: user.email, sub: user.id };
     return {
       access_token: this.jwtService.sign(payload),
-      user: { id: user.id, email: user.email },
+      user: { username: user.username, id: user.id, email: user.email },
     };
   }
 }

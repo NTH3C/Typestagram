@@ -17,6 +17,7 @@ export default function Login() {
       localStorage.setItem("token", res.data.access_token);
       console.log("Connecté :", res.data.user);
       localStorage.setItem("user", JSON.stringify(res.data.user));
+      console.log(res.data.user)
     } catch (err) {
       setError("Erreur connexion");
     }
