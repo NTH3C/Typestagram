@@ -14,6 +14,7 @@ type Post = {
   content: string;
   authorEmail: string;
   createdAt: string;
+  imageUrl?: string;
 };
 
 const API_URL = "http://localhost:8080";
@@ -21,6 +22,7 @@ const API_URL = "http://localhost:8080";
 export default function FeedPage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [content, setContent] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -64,9 +66,11 @@ export default function FeedPage() {
         content: trimmed,
         authorEmail: "me",
         createdAt: new Date().toISOString(),
+        imageUrl: imageUrl,
       };
       setPosts((prev) => [optimistic, ...prev]);
       setContent("");
+      setImageUrl("");
 
       const res = await fetch(`${API_URL}/posts`, {
         method: "POST",
@@ -74,7 +78,7 @@ export default function FeedPage() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ content: trimmed }),
+        body: JSON.stringify({ content: trimmed, imageUrl: imageUrl }),
       });
 
       if (!res.ok) {
@@ -111,6 +115,13 @@ export default function FeedPage() {
           minRows={3}
           value={content}
           onChange={(e) => setContent(e.target.value)}
+        />
+
+        <TextField
+          label="URL de l'image"
+          value={imageUrl}
+          onChange={(e) => setImageUrl(e.target.value)}
+          placeholder="https://exemple.com/image.jpg"
         />
 
         <Button

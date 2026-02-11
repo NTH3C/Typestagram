@@ -29,6 +29,7 @@ type Post = {
   createdAt: string;
   uid: string;
   comments?: Comment[];
+  imageUrl?: string;
 };
 
 const API_URL = "http://localhost:8080";
@@ -313,7 +314,7 @@ function CardPost({ toggleLike, openComment, post, liked }: CardPostProps) {
 
   return(
     <Box sx={{maxWidth: "fit-content", boxShadow: "2px 3px 5px black"}}>
-      <img src={ "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQeJQeJyzgAzTEVqXiGe90RGBFhfp_4RcJJMQ&s" }/>
+      <img src={post.imageUrl || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQeJQeJyzgAzTEVqXiGe90RGBFhfp_4RcJJMQ&s"} />
       <Box sx={{display: "flex", gap:"1em", flexDirection: "row-reverse", padding: "0 0.5em"}}>
         <ChatBubbleOutline onClick={() => openComment(post.id)} />
         {!liked ? 

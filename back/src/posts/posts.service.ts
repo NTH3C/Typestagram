@@ -14,6 +14,7 @@ export type PostModel = {
   createdAt: string;
   uid: string;
   comments: CommentModel[];
+  imageUrl?: string;
 };
 
 @Injectable()
@@ -24,7 +25,7 @@ export class PostsService {
     return this.posts;
   }
 
-  createPost(input: { content: string; authorEmail: string; uid: string }): PostModel {
+  createPost(input: { content: string; authorEmail: string; uid: string; imageUrl?: string }): PostModel {
     const post: PostModel = {
       id: Date.now(),
       content: input.content,
@@ -32,6 +33,7 @@ export class PostsService {
       createdAt: new Date().toISOString(),
       uid: input.uid,
       comments: [],
+      imageUrl: input.imageUrl,
     };
 
     this.posts.push(post);
