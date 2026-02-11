@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { LikeService, Like } from './like.service';
 
 @Controller('likes')
@@ -13,5 +13,10 @@ export class LikeController {
   @Post('toggle')
   toggleLike(@Body() post: Omit<Like, "likeId" | "createdAt">) {
     return this.likeService.toggleLike(post);
+  }
+
+  @Get('user/:email') 
+  getUser(@Param("email") email): Like[] {
+    return this.likeService.getLikeForUser(email);
   }
 }

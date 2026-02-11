@@ -16,6 +16,10 @@ export class LikeService {
     return this.likes;
   }
 
+  getLikeForUser(id: string){
+    return this.likes.filter(post => post.authorEmail == id)
+  }
+
   toggleLike(
     post: Omit<Like, 'likeId' | 'createdAt'>
   ): { liked: boolean; like?: Like } {

@@ -32,7 +32,7 @@ export class PostsController {
   }
 
   @Post()
-  async create(@Body() body: { content?: string }, @Req() req: any) {
+  async create(@Body() body: { content?: string; imageUrl?: string }, @Req() req: any) {
     const content = (body.content ?? '').trim();
     if (!content) throw new BadRequestException('Content cannot be empty');
 
@@ -53,7 +53,7 @@ export class PostsController {
     const authorEmail = payload?.email ?? 'unknown';
     const uid = payload?.id ?? '0';
 
-    return this.postsService.createPost({ content, authorEmail, uid });
+    return this.postsService.createPost({ content, authorEmail, uid, imageUrl: body.imageUrl });
   }
 
   @Delete(":id")
