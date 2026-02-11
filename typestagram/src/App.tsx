@@ -313,8 +313,8 @@ type CardPostProps = {
 function CardPost({ toggleLike, openComment, post, liked }: CardPostProps) {
 
   return(
-    <Box sx={{maxWidth: "fit-content", boxShadow: "2px 3px 5px black"}}>
-      <img src={post.imageUrl || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQeJQeJyzgAzTEVqXiGe90RGBFhfp_4RcJJMQ&s"} />
+    <Box sx={{maxWidth: "20em", boxShadow: "2px 3px 5px black"}}>
+      <img width={"100%"} src={post.imageUrl || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQeJQeJyzgAzTEVqXiGe90RGBFhfp_4RcJJMQ&s"} />
       <Box sx={{display: "flex", gap:"1em", flexDirection: "row-reverse", padding: "0 0.5em"}}>
         <ChatBubbleOutline onClick={() => openComment(post.id)} />
         {!liked ? 
