@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1770823289255,
+    "content": "test",
+    "authorEmail": "test@test.com",
+    "createdAt": "2026-02-11T15:21:29.255Z",
+    "uid": 1770823224614,
+    "comments": [
+      {
+        "id": 1770823298092,
+        "text": "test commentaire",
+        "authorEmail": "test@test.com",
+        "createdAt": "2026-02-11T15:21:38.092Z"
+      }
+    ],
+    "imageUrl": "https://ichef.bbci.co.uk/ace/standard/976/cpsprodpb/14235/production/_100058428_mediaitem100058424.jpg"
+  }
+]

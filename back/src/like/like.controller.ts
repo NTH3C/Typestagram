@@ -6,17 +6,17 @@ export class LikeController {
   constructor(private readonly likeService: LikeService) {}
 
   @Get()
-  getFeed(): Like[] {
-    return this.likeService.getFeed();
+  async getFeed(): Promise<Like[]> {
+    return await this.likeService.getFeed();
   }
 
   @Post('toggle')
-  toggleLike(@Body() post: Omit<Like, "likeId" | "createdAt">) {
-    return this.likeService.toggleLike(post);
+  async toggleLike(@Body() post: Omit<Like, "likeId" | "createdAt">) {
+    return await this.likeService.toggleLike(post);
   }
 
   @Get('user/:email') 
-  getUser(@Param("email") email): Like[] {
-    return this.likeService.getLikeForUser(email);
+  async getUser(@Param("email") email): Promise<Like[]> {
+    return await this.likeService.getLikeForUser(email);
   }
 }

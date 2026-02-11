@@ -1,4 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import * as fs from 'fs/promises';
+import * as path from 'path';
 
 export type Like = {
   likeId: number;      // unique like identifier
@@ -10,27 +12,46 @@ export type Like = {
 
 @Injectable()
 export class LikeService {
-  private likes: Like[] = [];
+  private filePath = path.join(process.cwd(), 'data', 'likes.json');
 
-  getFeed(): Like[] {
-    return this.likes;
+  // Lire les likes
+  private async readLikes(): Promise<Like[]> {
+    try {
+      const data = await fs.readFile(this.filePath, 'utf-8');
+      return JSON.parse(data);
+    } catch {
+      return [];
+    }
   }
 
-  getLikeForUser(id: string){
-    return this.likes.filter(post => post.authorEmail == id)
+  // Écrire les likes
+  private async writeLikes(likes: Like[]) {
+    await fs.writeFile(this.filePath, JSON.stringify(likes, null, 2));
   }
 
-  toggleLike(
+  async getFeed(): Promise<Like[]> {
+    return this.readLikes();
+  }
+
+  async getLikeForUser(email: string): Promise<Like[]> {
+    const likes = await this.readLikes();
+    return likes.filter(like => like.authorEmail === email);
+  }
+
+  async toggleLike(
     post: Omit<Like, 'likeId' | 'createdAt'>
-  ): { liked: boolean; like?: Like } {
-    // check if this user already liked THIS post
-    const existingIndex = this.likes.findIndex(
+  ): Promise<{ liked: boolean; like?: Like }> {
+    const likes = await this.readLikes();
+
+    // Vérifie si l'utilisateur a déjà liké ce post
+    const existingIndex = likes.findIndex(
       (l) => l.id === post.id && l.authorEmail === post.authorEmail
     );
 
     if (existingIndex !== -1) {
       // unlike
-      this.likes.splice(existingIndex, 1);
+      likes.splice(existingIndex, 1);
+      await this.writeLikes(likes);
       return { liked: false };
     }
 
@@ -41,7 +62,9 @@ export class LikeService {
       ...post,
     };
 
-    this.likes.push(like);
+    likes.push(like);
+    await this.writeLikes(likes);
+
     return { liked: true, like };
   }
 }

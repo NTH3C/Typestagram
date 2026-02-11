@@ -20,12 +20,12 @@ export class PostsController {
   ) {}
 
   @Get()
-  getFeed() {
+  async getFeed() {
     return this.postsService.getFeed();
   }
 
   @Get(':id')
-  getPost(@Param('id') id: string) {
+  async getPost(@Param('id') id: string) {
     const post = this.postsService.getPostById(parseInt(id, 10));
     if (!post) throw new BadRequestException('Post not found');
     return post;

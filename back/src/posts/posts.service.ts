@@ -1,4 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import * as fs from 'fs/promises';
+import * as path from 'path';
 
 export type CommentModel = {
   id: number;
@@ -19,13 +21,35 @@ export type PostModel = {
 
 @Injectable()
 export class PostsService {
-  private posts: PostModel[] = [];
+  private filePath = path.join(process.cwd(), 'data', 'posts.json');
 
-  getFeed(): PostModel[] {
-    return this.posts;
+  // Lire le fichier
+  private async readPosts(): Promise<PostModel[]> {
+    try {
+      const data = await fs.readFile(this.filePath, 'utf-8');
+      return JSON.parse(data);
+    } catch {
+      return [];
+    }
   }
 
-  createPost(input: { content: string; authorEmail: string; uid: string; imageUrl?: string }): PostModel {
+  // Écrire dans le fichier
+  private async writePosts(posts: PostModel[]) {
+    await fs.writeFile(this.filePath, JSON.stringify(posts, null, 2));
+  }
+
+  async getFeed(): Promise<PostModel[]> {
+    return this.readPosts();
+  }
+
+  async createPost(input: {
+    content: string;
+    authorEmail: string;
+    uid: string;
+    imageUrl?: string;
+  }): Promise<PostModel> {
+    const posts = await this.readPosts();
+
     const post: PostModel = {
       id: Date.now(),
       content: input.content,
@@ -36,26 +60,38 @@ export class PostsService {
       imageUrl: input.imageUrl,
     };
 
-    this.posts.push(post);
+    posts.push(post);
+    await this.writePosts(posts);
 
     return post;
   }
 
-  deletePost(input: {id : number}) {
-    const post: PostModel = this.posts.find(fn => fn.id = input.id) as PostModel
+  async deletePost(input: { id: number }) {
+    const posts = await this.readPosts();
 
-    let index = this.posts.indexOf(post)
-    this.posts.splice(index, 1);
+    const updated = posts.filter(post => post.id !== input.id);
 
-    console.log(this.posts)
+    if (updated.length === posts.length) {
+      throw new Error('Post not found');
+    }
+
+    await this.writePosts(updated);
+
+    return { message: 'Post deleted' };
   }
 
-  getPostById(id: number): PostModel | undefined {
-    return this.posts.find((p) => p.id === id);
+  async getPostById(id: number): Promise<PostModel | undefined> {
+    const posts = await this.readPosts();
+    return posts.find(p => p.id === id);
   }
 
-  createComment(postId: number, input: { text: string; authorEmail: string }): CommentModel {
-    const post = this.getPostById(postId);
+  async createComment(
+    postId: number,
+    input: { text: string; authorEmail: string }
+  ): Promise<CommentModel> {
+    const posts = await this.readPosts();
+
+    const post = posts.find(p => p.id === postId);
     if (!post) throw new Error('Post not found');
 
     const comment: CommentModel = {
@@ -66,6 +102,9 @@ export class PostsService {
     };
 
     post.comments.push(comment);
+
+    await this.writePosts(posts);
+
     return comment;
   }
 }
