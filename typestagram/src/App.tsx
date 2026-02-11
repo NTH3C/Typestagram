@@ -6,11 +6,14 @@ import FeedPage from './pages/feedPage';
 
 import Register from './pages/register';
 import Login from './pages/login';
-import { Alert, Box, Button as ButtonIcon, Drawer, IconButton, Stack, TextField, Typography } from '@mui/material';
+import { Alert, AppBar, Box, Button as ButtonIcon, Divider, Drawer, IconButton, Stack, TextField, Typography } from '@mui/material';
 import Button from '@mui/material/Button';
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import Profile from './pages/Profile';
 import axios from 'axios';
+import Navbar from './components/Navbar';
+import { ChatBubbleOutline, Favorite, FavoriteBorder, HeartBroken } from '@mui/icons-material';
+import type { User } from './types/Profile';
 
 type Comment = {
   id: number;
@@ -98,6 +101,7 @@ function App() {
   return (
     <OpenPostContext.Provider value={openPost}>
         <BrowserRouter>
+          <Navbar />
           <Routes>
             <Route path="/" element={<MyApp />} />
 
@@ -195,10 +199,8 @@ async function toggleLike(post: Post) {
 function MyApp() {
   const [visibleCount, setVisibleCount] = useState(2);
   const [posts, setPosts] = useState<Post[]>([]);
-  const [likedPosts, setLikedPosts] = useState<{ [key: string]: boolean }>({});
 
   const loaderRef = useRef<HTMLDivElement | null>(null);
-  const openPost = useContext(OpenPostContext);
 
   const deletePost = async (id: string) => {
   try {
@@ -214,7 +216,6 @@ function MyApp() {
     const fetchPost = async () => {
         try {
             const res = await axios.get(`http://localhost:8080/posts`);
-            console.log(res.data);
             setPosts(res.data);
         } catch (err) {
             console.error(err);
@@ -237,58 +238,95 @@ function MyApp() {
 
   const storedUser = localStorage.getItem("user");
 
+  return (
+    <>
+      <Box sx={{display: "flex", gap: "2em", padding: "2em"}}>
+        <ListCardPosts posts={posts}/>
+      </Box>
+
+
+    </>
+  )
+}
+
+type ListCardPostsProps = {
+  posts: Post[]
+}
+
+function ListCardPosts({posts}: ListCardPostsProps) {
+
+  const [likedPosts, setLikedPosts] = useState<number[]>([]);
+  const openPost = useContext(OpenPostContext);
+
+  const storedUser = localStorage.getItem("user");
+  const user: User = JSON.parse(storedUser!) as User;
+
+  useEffect(() => {
+    const fetchUserLikes = async () => {
+      const res = await axios.get(
+        `http://localhost:8080/likes/user/${user.email}`
+      );
+
+      // assuming backend returns array of posts liked
+      setLikedPosts(res.data.map((like: any) => like.id));
+    };
+
+    fetchUserLikes();
+  }, []);
+
   const handleLike = async (post: Post) => {
     try {
       const data = await toggleLike(post);
-      setLikedPosts((prev) => ({
-        ...prev,
-        [post.uid]: data.liked,
-      }));
+      const postId = Number(post.id);
+
+      setLikedPosts(prev =>
+        prev.includes(postId)
+          ? prev.filter(id => id !== postId)
+          : [...prev, postId]
+      );
     } catch (err) {
       console.error("Erreur like:", err);
     }
   };
 
-  return (
+  
+
+  return(
     <>
-      <Box>
-      <h1>Accueil</h1>
-      {
-
-        storedUser ? (
-          <div>
-            <Button variant="contained" sx={{background: "red"}} href="/logout">
-              se déconnecter
-            </Button>
-            <ul>
-              <li>
-                {posts.slice(0,visibleCount).map((post, index) => (
-                  <div key={index} style={{ cursor: 'pointer', border: '1px solid #ddd', padding: 8, marginBottom: 8 }} onClick={() => openPost?.(Number(post.id))}>
-                    <a href={`/profile/${post.uid}`} onClick={(e) => e.stopPropagation()}>{post.authorEmail}</a>
-                    <p>{post.content}</p>
-                    <Button variant="outlined" onClick={(e) => { e.stopPropagation(); toggleLike(post) }}>Like</Button>
-                    <Button variant="outlined" onClick={(e) => { e.stopPropagation(); deletePost(String(post.id)); }}>supprimer</Button>
-                  </div>
-                ))}
-              </li>
-            </ul>
-          <div ref={loaderRef} style={{ height: 20 }} />
-          </div>
-        ) : (
-          <Button variant="contained" href="/login">
-            Login
-          </Button>
+      {posts.map((post, index) => {
+        return (
+          <CardPost liked={likedPosts.includes(Number(post.id))}  key={index} toggleLike={() => {handleLike(post)}} openComment={(id) => {openPost!(id as number)}} post={post}/>
         )
-
-      }
-      <Button variant="outlined" href="/feed">
-        Feed
-      </Button>
-
-      </Box>
-
-
+      })}
     </>
+  )
+}
+
+type CardPostProps = {
+  toggleLike: () => void;
+  openComment: (id: number | string) => void;
+  post: Post;
+  liked: boolean
+};
+
+function CardPost({ toggleLike, openComment, post, liked }: CardPostProps) {
+
+  return(
+    <Box sx={{maxWidth: "fit-content", boxShadow: "2px 3px 5px black"}}>
+      <img src={ "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQeJQeJyzgAzTEVqXiGe90RGBFhfp_4RcJJMQ&s" }/>
+      <Box sx={{display: "flex", gap:"1em", flexDirection: "row-reverse", padding: "0 0.5em"}}>
+        <ChatBubbleOutline onClick={() => openComment(post.id)} />
+        {!liked ? 
+          <FavoriteBorder onClick={() => {toggleLike();}} />
+          :
+          <Favorite onClick={() => {toggleLike();}} sx={{color: "red"}}/>
+        }
+      </Box>
+      <Divider />
+      <Box sx={{display: "flex", margin: 0, padding: 0}}>
+        <p>{post.content}</p>
+      </Box>
+    </Box>
   )
 }
 
