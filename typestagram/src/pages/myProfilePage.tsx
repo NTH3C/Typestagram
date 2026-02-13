@@ -5,6 +5,8 @@ import type { User } from "../types/Profile";
 const MyProfilePage = () => {
   const storedUser = localStorage.getItem("user");
 
+  console.log(storedUser);
+
 
   if (!storedUser) {
     return <Typography>User not connected</Typography>;
@@ -12,25 +14,24 @@ const MyProfilePage = () => {
 
   const user: User = JSON.parse(storedUser) as User;
 
-
-
-
   return (
     <Container maxWidth="sm">
+      <h1>Mon profile</h1>
       <Stack
         spacing={2}
         alignItems="center"
         sx={{
-          marginTop: -24,
           textAlign: "center",
         }}
       >
 
-        <Typography variant="h4" fontWeight="bold">
+        <Typography variant="body1" fontWeight="bold">
+          <label htmlFor="">Email:</label>
           {user.email}
         </Typography>
 
         <Typography variant="body1" color="text.secondary">
+          <label htmlFor="">username:</label>
           {user.username}
         </Typography>
 

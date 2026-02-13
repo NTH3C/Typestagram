@@ -30,6 +30,9 @@ function Navbar() {
         backgroundColor: "#fff",
         color: "#000",
         borderBottom: "1px solid #dbdbdb",
+        width: "100vw",
+        margin: "0",
+        padding: "0"
       }}
     >
       <Toolbar sx={{ justifyContent: "space-between" }}>
@@ -44,7 +47,7 @@ function Navbar() {
             color: "inherit",
           }}
         >
-          InstaClone
+          Typestagram
         </Typography>
 
         {/* Search */}
