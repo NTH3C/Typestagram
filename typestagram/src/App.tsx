@@ -12,7 +12,7 @@ import React, { createContext, useContext, useEffect, useRef, useState } from 'r
 import Profile from './pages/Profile';
 import axios from 'axios';
 import Navbar from './components/Navbar';
-import { ChatBubbleOutline, Favorite, FavoriteBorder, HeartBroken } from '@mui/icons-material';
+import { ChatBubbleOutline, CloseOutlined, Favorite, FavoriteBorder, HeartBroken } from '@mui/icons-material';
 import type { User } from './types/Profile';
 
 type Comment = {
@@ -203,6 +203,8 @@ function MyApp() {
 
   const loaderRef = useRef<HTMLDivElement | null>(null);
 
+  
+
   const deletePost = async (id: string) => {
   try {
     const res = await axios.delete(`http://localhost:8080/posts/${id}`);
@@ -238,11 +240,16 @@ function MyApp() {
 
 
   const storedUser = localStorage.getItem("user");
+  const navigate = useNavigate()  
+    
+    if (!storedUser) {
+      navigate("/login")
+    }
 
   return (
     <>
       <Box sx={{display: "flex", gap: "2em", padding: "2em"}}>
-        <ListCardPosts posts={posts}/>
+        <ListCardPosts posts={posts} />
       </Box>
 
 
@@ -262,6 +269,16 @@ function ListCardPosts({posts}: ListCardPostsProps) {
   const storedUser = localStorage.getItem("user");
   const user: User = JSON.parse(storedUser!) as User;
 
+    const deletePost = async (id: string) => {
+  try {
+    const res = await axios.delete(`http://localhost:8080/posts/${id}`);
+    // setPosts(post => post.filter(curpost => String(curpost.id) !== id));
+  } catch (err) {
+    console.error(err);
+  }
+  
+}
+  
   useEffect(() => {
     const fetchUserLikes = async () => {
       const res = await axios.get(
@@ -296,7 +313,7 @@ function ListCardPosts({posts}: ListCardPostsProps) {
     <>
       {posts.map((post, index) => {
         return (
-          <CardPost liked={likedPosts.includes(Number(post.id))}  key={index} toggleLike={() => {handleLike(post)}} openComment={(id) => {openPost!(id as number)}} post={post}/>
+          <CardPost deletePost={() => deletePost(post.id.toString())} liked={likedPosts.includes(Number(post.id))}  key={index} toggleLike={() => {handleLike(post)}} openComment={(id) => {openPost!(id as number)}} post={post}/>
         )
       })}
     </>
@@ -306,16 +323,22 @@ function ListCardPosts({posts}: ListCardPostsProps) {
 type CardPostProps = {
   toggleLike: () => void;
   openComment: (id: number | string) => void;
+  deletePost: (id: number | string) => void
   post: Post;
   liked: boolean
 };
 
-function CardPost({ toggleLike, openComment, post, liked }: CardPostProps) {
+function CardPost({ toggleLike, openComment, deletePost, post, liked }: CardPostProps) {
+  const storedUser = localStorage.getItem("user");
+  const user: User = JSON.parse(storedUser!) as User;
 
   return(
     <Box sx={{maxWidth: "20em", boxShadow: "2px 3px 5px black"}}>
       <img width={"100%"} src={post.imageUrl || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQeJQeJyzgAzTEVqXiGe90RGBFhfp_4RcJJMQ&s"} />
       <Box sx={{display: "flex", gap:"1em", flexDirection: "row-reverse", padding: "0 0.5em"}}>
+        {(post.authorEmail === user.email) ?
+          <CloseOutlined onClick={() => deletePost(post.id)} /> : <></>
+        }
         <ChatBubbleOutline onClick={() => openComment(post.id)} />
         {!liked ? 
           <FavoriteBorder onClick={() => {toggleLike();}} />

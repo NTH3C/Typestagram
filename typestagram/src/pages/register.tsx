@@ -2,17 +2,20 @@ import { useForm } from "react-hook-form";
 import { TextField, Button, Box } from "@mui/material";
 import { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export default function Register() {
   const { register, handleSubmit, watch, formState: { errors } } = useForm();
   const [error, setError] = useState("");
+
+  const navigate = useNavigate()
 
   const watchPassword = watch("password");
 
   const onSubmit = async (data) => {
     try {
       const res = await axios.post("http://localhost:8080/auth/register", data);
-      console.log(res.data);
+      navigate("/login")
     } catch {
       setError("Erreur lors de l'inscription");
     }

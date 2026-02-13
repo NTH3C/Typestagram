@@ -5,9 +5,6 @@ import type { User } from "../types/Profile";
 const MyProfilePage = () => {
   const storedUser = localStorage.getItem("user");
 
-  console.log(storedUser);
-
-
   if (!storedUser) {
     return <Typography>User not connected</Typography>;
   }

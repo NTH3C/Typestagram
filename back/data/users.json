@@ -4,5 +4,11 @@
     "username": "test",
     "email": "test@test.com",
     "password": "$2b$10$ig001aVGdfmPr7pWggdYHO/FhEy9hv4yDYtw09Tl/6raLccAEKtrC"
+  },
+  {
+    "id": 1770972062722,
+    "username": "stef",
+    "email": "stef@test.com",
+    "password": "$2b$10$gHkhMdwy7N5II2fNH4Ypv.MLPBRWSbNHgMfrAQmFQuy6zQrIkZ2Nu"
   }
 ]

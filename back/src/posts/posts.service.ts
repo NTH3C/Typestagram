@@ -72,7 +72,7 @@ export class PostsService {
     const updated = posts.filter(post => post.id !== input.id);
 
     if (updated.length === posts.length) {
-      throw new Error('Post not found');
+      return {message: "Post don't exist"};
     }
 
     await this.writePosts(updated);
@@ -92,7 +92,7 @@ export class PostsService {
     const posts = await this.readPosts();
 
     const post = posts.find(p => p.id === postId);
-    if (!post) throw new Error('Post not found');
+    if (!post) return {id:0, text:"", authorEmail:'', createdAt:"test"};
 
     const comment: CommentModel = {
       id: Date.now(),
