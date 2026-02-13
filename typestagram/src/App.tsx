@@ -198,22 +198,7 @@ async function toggleLike(post: Post) {
 }
 
 function MyApp() {
-  const [visibleCount, setVisibleCount] = useState(2);
   const [posts, setPosts] = useState<Post[]>([]);
-
-  const loaderRef = useRef<HTMLDivElement | null>(null);
-
-  
-
-  const deletePost = async (id: string) => {
-  try {
-    const res = await axios.delete(`http://localhost:8080/posts/${id}`);
-    setPosts(post => post.filter(curpost => String(curpost.id) !== id));
-  } catch (err) {
-    console.error(err);
-  }
-  
-}
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -227,29 +212,32 @@ function MyApp() {
 
     fetchPost();
 
-    const observer = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting) {
-        setVisibleCount((prev) => prev + 1);
-      }
-    });
-
-    if (loaderRef.current) observer.observe(loaderRef.current);
-
-    return () => observer.disconnect();
   }, []);
 
 
   const storedUser = localStorage.getItem("user");
   const navigate = useNavigate()  
+
+  const deletePost = async (id: string) => {
+  try {
+    const res = await axios.delete(`http://localhost:8080/posts/${id}`);
+    setPosts(post => post.filter(curpost => String(curpost.id) !== id));
+  } catch (err) {
+    console.error(err);
+  }
+  
+}
     
+  useEffect(() => {
     if (!storedUser) {
-      navigate("/login")
+      navigate("/login");
     }
+  }, [storedUser, navigate]);
 
   return (
     <>
-      <Box sx={{display: "flex", gap: "2em", padding: "2em"}}>
-        <ListCardPosts posts={posts} />
+      <Box sx={{display: "flex", gap: "2em", padding: "2em", flexWrap: "wrap",}}>
+        <ListCardPosts deletePost={deletePost} posts={posts} />
       </Box>
 
 
@@ -258,26 +246,18 @@ function MyApp() {
 }
 
 type ListCardPostsProps = {
-  posts: Post[]
+  posts: Post[];
+  deletePost: (id: string) => Promise<void>
 }
 
-function ListCardPosts({posts}: ListCardPostsProps) {
+function ListCardPosts({posts, deletePost}: ListCardPostsProps) {
 
   const [likedPosts, setLikedPosts] = useState<number[]>([]);
   const openPost = useContext(OpenPostContext);
+  const [visibleCount, setVisibleCount] = useState(2);
 
   const storedUser = localStorage.getItem("user");
   const user: User = JSON.parse(storedUser!) as User;
-
-    const deletePost = async (id: string) => {
-  try {
-    const res = await axios.delete(`http://localhost:8080/posts/${id}`);
-    // setPosts(post => post.filter(curpost => String(curpost.id) !== id));
-  } catch (err) {
-    console.error(err);
-  }
-  
-}
   
   useEffect(() => {
     const fetchUserLikes = async () => {
@@ -307,15 +287,32 @@ function ListCardPosts({posts}: ListCardPostsProps) {
     }
   };
 
+  const loaderRef = useRef<HTMLDivElement | null>(null);
+  
+  useEffect(() => {
+
+    
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        setVisibleCount((prev) => prev + 1);
+      }
+    });
+
+    if (loaderRef.current) observer.observe(loaderRef.current);
+
+    return () => observer.disconnect();
+  })
+
   
 
   return(
     <>
-      {posts.map((post, index) => {
+      {posts.slice(0, visibleCount).map((post, index) => {
         return (
-          <CardPost deletePost={() => deletePost(post.id.toString())} liked={likedPosts.includes(Number(post.id))}  key={index} toggleLike={() => {handleLike(post)}} openComment={(id) => {openPost!(id as number)}} post={post}/>
+          <CardPost deletePost={deletePost} liked={likedPosts.includes(Number(post.id))}  key={index} toggleLike={() => {handleLike(post)}} openComment={(id) => {openPost!(id as number)}} post={post}/>
         )
       })}
+    <div ref={loaderRef} style={{height: 20}}></div>
     </>
   )
 }
@@ -323,7 +320,7 @@ function ListCardPosts({posts}: ListCardPostsProps) {
 type CardPostProps = {
   toggleLike: () => void;
   openComment: (id: number | string) => void;
-  deletePost: (id: number | string) => void
+  deletePost: (id: string) => void
   post: Post;
   liked: boolean
 };
@@ -333,11 +330,14 @@ function CardPost({ toggleLike, openComment, deletePost, post, liked }: CardPost
   const user: User = JSON.parse(storedUser!) as User;
 
   return(
-    <Box sx={{maxWidth: "20em", boxShadow: "2px 3px 5px black"}}>
+    <Box sx={{boxShadow: "2px 3px 5px black",
+        flex: "1 1 calc(33.333% - 2em)",
+        maxWidth: "calc(33.333% - 2em)",
+      }}>
       <img width={"100%"} src={post.imageUrl || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQeJQeJyzgAzTEVqXiGe90RGBFhfp_4RcJJMQ&s"} />
       <Box sx={{display: "flex", gap:"1em", flexDirection: "row-reverse", padding: "0 0.5em"}}>
         {(post.authorEmail === user.email) ?
-          <CloseOutlined onClick={() => deletePost(post.id)} /> : <></>
+          <CloseOutlined onClick={() => deletePost(post.id.toString())} /> : <></>
         }
         <ChatBubbleOutline onClick={() => openComment(post.id)} />
         {!liked ? 
